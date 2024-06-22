@@ -45,7 +45,7 @@ def login():
             
     return jsonify({"message": "Didn't work!"}), 400
 
-@auth.route('/logout', methods=["GET"])
+@auth.route('/get-user', methods=["GET"])
 @jwt_required()
 def logout():
     current_user = get_jwt_identity()
