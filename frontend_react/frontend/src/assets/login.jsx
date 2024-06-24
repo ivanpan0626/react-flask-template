@@ -22,12 +22,13 @@ function LoginPage() {
       body: JSON.stringify(data),
     };
     const response = await fetch(url, options);
-    const responseData = await response.json();
     if (response.status !== 201 && response.status !== 200) {
-      alert("Wrong Password or Email")
+      const errorData = await response.json();
+      alert(errorData.message)
     } else {
-      sessionStorage.setItem("accessToken", responseData.token)
-      window.location.href="http://localhost:3000/login";
+      const responseData = await response.json();
+      sessionStorage.setItem("accessToken", responseData.message)
+      window.location.href="http://localhost:3000";
     }
   };
   

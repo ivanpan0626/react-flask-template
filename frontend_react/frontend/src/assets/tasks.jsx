@@ -16,26 +16,20 @@ function TasksPage() {
 
   const getUser = async () => {
     const options = {
-      headers: {
-        method: "GET",
-        Authorization: "Bearer " + sessionStorage.getItem("accessToken"),
-      },
+      method: "GET",
+      credentials: 'include',
+      //headers: {
+        //'X-CSRF-TOKEN': getCookie('csrf_access_token'),
+      //},
     };
-    try {
-      const response = await fetch("http://127.0.0.1:5000/get-user", options);
-
-      if (!response.ok) {
-        // Handle non-200 responses
-        const errorData = await response.json();
-        console.error("Error:", errorData.message);
-      } else {
-        const data = await response.json();
-        console.log("Success:", data.user);
-        setUser(data.user)
-      }
-    } catch (error) {
-      // Handle network or other errors
-      console.error("Network error:", error);
+    const response = await fetch("http://127.0.0.1:5000/get-user", options);
+    if (response.status !== 201 && response.status!== 200) {
+      const errorData = await response.json();
+      alert(errorData.message)
+    } 
+    else {
+      const respData = await response.json();
+      setUser(respData.user)
     }
   };
 

@@ -26,10 +26,9 @@ const SignupForm = () => {
     };
     const response = await fetch(url, options);
     if (response.status !== 201 && response.status !== 200) {
-      const data = await response.json();
-      alert(data.message);
+      const errorData = await response.json();
+      alert(errorData.message);
     } else {
-      console.log("User created!");
       window.location.href="http://localhost:3000/login";
     }
   };

@@ -16,6 +16,20 @@ def user_lookup_callback(_jwt_header, jwt_data):
 
 auth = Blueprint('auth', __name__)
 
+@auth.after_request
+def refresh_expiring_jwts(response):
+    try:
+        exp_timestamp = get_jwt()["exp"]
+        now = datetime.now(timezone.utc)
+        target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+        if target_timestamp > exp_timestamp:
+            access_token = create_access_token(identity=get_jwt_identity())
+            set_access_cookies(response, access_token)
+        return response
+    except (RuntimeError, KeyError):
+        # Case where there is not a valid JWT. Just return the original response
+        return response
+
 @auth.route("/signup", methods=["POST"])
 def signup():
     email = request.json.get('email')
@@ -24,18 +38,19 @@ def signup():
     password2 = request.json.get('password2')
 
     if not username or not email:
-        return (
-            jsonify({"message": "You must include a first name and email"}),
-            400,
-        )
-
+        return jsonify({"message": "You must include a first name and email"}), 400
+    
+    user = User.query.filter_by(email=email).one_or_none()
+    if user:
+        return jsonify({"message": "Email already used!"}), 400
+    
+    if (password1 != password2):
+        return jsonify({"message": "Passwords don't match!"}), 400
+    
     new_user = User(email=email, username=username, password=generate_password_hash(
             password1, method='scrypt'))
-    try:
-        db.session.add(new_user)
-        db.session.commit()
-    except Exception as e:
-        return jsonify({"message": str(e)}), 400
+    db.session.add(new_user)
+    db.session.commit()
 
     return jsonify({"message": "User created!"}), 201
 
@@ -48,13 +63,21 @@ def login():
     if user:
             if check_password_hash(user.password, password):
                 access_token = create_access_token(identity=user)
-                return jsonify({"token": access_token}), 200
+                response = make_response(jsonify({"message": "Logged in"}), 200)
+                set_access_cookies(response, access_token)
+                return response
             else:
                 return jsonify({"message": "Wrong Email or Password!"}), 404
             
-    return jsonify({"message": "Didn't work!"}), 400
+    return jsonify({"message": "Email incorrect!"}), 400
+
+@auth.route('/logout', methods=['POST'])
+def logout():
+    response = jsonify({"message": "Logout successful!"})
+    unset_jwt_cookies(response)
+    return response
 
 @auth.route('/get-user', methods=["GET"])
 @jwt_required()
 def get_user():
-    return jsonify({"user": current_user.id}), 200
+    return jsonify({"user": current_user.username}), 200
