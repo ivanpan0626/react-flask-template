@@ -43,7 +43,7 @@ function Home() {
   return (
     <>
       <Navbar></Navbar>
-      {isLoggedIn ? (<><h1> hi welcome user: {user}
+      {isLoggedIn ? (<><h1> hi welcome user: {user} <br></br> {sessionStorage.getItem("accessToken")}
         <br></br> Welcome to put anything here for authorized users.
       </h1>
       </>) : (<></>)}

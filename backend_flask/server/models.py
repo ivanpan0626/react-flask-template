@@ -1,7 +1,11 @@
-from . import db
+from . import db, jwt
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+from uuid import uuid4
 
+
+def get_uuid():
+    return uuid4().hex
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -16,7 +20,7 @@ class Task(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
 class User(db.Model, UserMixin):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.String(100), unique=True, primary_key=True, default=get_uuid)
     email = db.Column(db.String(150), unique=True)
     password = db.Column(db.String(150))
     username = db.Column(db.String(150), unique=True)
@@ -26,6 +30,6 @@ class User(db.Model, UserMixin):
     def to_json(self):
         return {
             "id": self.id,
-            "firstName": self.first_name,
+            "firstName": self.username,
             "email": self.email,
         }

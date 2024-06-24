@@ -1,8 +1,18 @@
-from flask import request, jsonify, redirect, Blueprint
-from . import db
+from flask import request, jsonify, redirect, Blueprint, make_response
+from . import db, jwt
+from datetime import datetime, timedelta, timezone
 from .models import User
-from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required
+from flask_jwt_extended import create_access_token, get_jwt, get_jwt_identity, jwt_required, current_user, unset_jwt_cookies, set_access_cookies
 from werkzeug.security import generate_password_hash, check_password_hash
+
+@jwt.user_identity_loader
+def user_identity_lookup(user):
+    return user.id
+
+@jwt.user_lookup_loader
+def user_lookup_callback(_jwt_header, jwt_data):
+    identity = jwt_data["sub"]
+    return User.query.filter_by(id=identity).one_or_none()
 
 auth = Blueprint('auth', __name__)
 
@@ -34,11 +44,10 @@ def login():
     email = request.json.get('email')
     password = request.json.get('password')
 
-    user = User.query.filter_by(email=email).first()
+    user = User.query.filter_by(email=email).one_or_none()
     if user:
             if check_password_hash(user.password, password):
-                access_token = create_access_token(identity=email)
-                print(access_token)
+                access_token = create_access_token(identity=user)
                 return jsonify({"token": access_token}), 200
             else:
                 return jsonify({"message": "Wrong Email or Password!"}), 404
@@ -47,6 +56,5 @@ def login():
 
 @auth.route('/get-user', methods=["GET"])
 @jwt_required()
-def logout():
-    current_user = get_jwt_identity()
-    return jsonify({"user": current_user}), 200
+def get_user():
+    return jsonify({"user": current_user.id}), 200

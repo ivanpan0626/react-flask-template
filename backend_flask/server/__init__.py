@@ -1,10 +1,12 @@
 from flask import Flask
+from datetime import timedelta
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from os import path
 
 db = SQLAlchemy()
+jwt = JWTManager()
 DB_NAME = "database.db"
 
 def create_app():
@@ -12,10 +14,14 @@ def create_app():
     app.config['SECRET_KEY'] = 'hjshjhdjah kjshkjdhjs'
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///mydatabase.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    #app.config["JWT_COOKIE_SECURE"] = False
+    #app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
+    #app.config['JWT_ACCESS_COOKIE_PATH'] = '/'
     app.config["JWT_SECRET_KEY"] = "sasdasdsadsadasd"
-    jwt = JWTManager(app)
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
     CORS(app)
     db.init_app(app)
+    jwt.init_app(app)
 
     from .auth import auth
     app.register_blueprint(auth, url_prefix='/')

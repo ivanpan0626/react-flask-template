@@ -30,6 +30,7 @@ const SignupForm = () => {
       alert(data.message);
     } else {
       console.log("User created!");
+      window.location.href="http://localhost:3000/login";
     }
   };
   

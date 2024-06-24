@@ -14,10 +14,29 @@ function Navbar({}) {
 
   // Function to handle logout
   const logout = async () => {
-    sessionStorage.removeItem("accessToken");
+    //onLogout();
     console.log("Logging out");
-    window.location.href = "http://localhost:3000/login";
+    sessionStorage.removeItem("accessToken");
     setIsLoggedIn(false);
+    window.location.href="http://localhost:3000/login";
+  };
+
+  const onLogout = async (e) => {
+    e.preventDefault();
+    const url = "http://127.0.0.1:5000/logout";
+    const options = {
+      headers: {
+        method: "POST",
+        Authorization: "Bearer " + sessionStorage.getItem("accessToken"),
+      },
+    };
+    const response = await fetch(url, options);
+    if (response.status !== 201 && response.status !== 200) {
+      //alert(data.message);
+    } else {
+      console.log("User is out");
+      window.location.href="http://localhost:3000/login";
+    }
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -66,7 +85,7 @@ function Navbar({}) {
                   <a
                     className="nav-item nav-link"
                     id="key-page"
-                    href="/passwords"
+                    href="/keys"
                   >
                     Keys
                   </a>
