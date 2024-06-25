@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
 import SignupForm from "./signupForm";
 import LoginPage from "./login";
+import axios from 'axios';
 
 function Navbar({}) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const getToken = sessionStorage.getItem("accessToken");
+  const api = axios.create({
+    baseURL: 'http://127.0.0.1:5000',  // Your Flask backend URL
+    withCredentials: true,  // Include cookies in requests
+  })
 
   useEffect(() => {
     if (getToken && getToken != "" && getToken != undefined) {
@@ -14,29 +19,17 @@ function Navbar({}) {
 
   // Function to handle logout
   const logout = async () => {
-    //onLogout();
-    console.log("Logging out");
+    onLogout();
     sessionStorage.removeItem("accessToken");
     setIsLoggedIn(false);
-    window.location.href="http://localhost:3000/login";
   };
 
   const onLogout = async (e) => {
     e.preventDefault();
-    const url = "http://127.0.0.1:5000/logout";
-    const options = {
-      method: "POST",
-      credentials: 'include'
-      //headers: {
-        //'X-CSRF-TOKEN': getCookie('csrf_access_token'),
-        //Authorization: "Bearer " + sessionStorage.getItem("accessToken"),
-      //},
-    };
-    const response = await fetch(url, options);
+    const response = await api.post('/logout');
     if (response.status !== 201 && response.status !== 200) {
       //alert(data.message);
     } else {
-      console.log("User is out");
       window.location.href="http://localhost:3000/login";
     }
   };

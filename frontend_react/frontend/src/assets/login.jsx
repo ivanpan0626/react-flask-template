@@ -1,10 +1,15 @@
 import { useState } from "react";
 import Navbar from "./Navbar";
+import axios from 'axios';
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const getToken = sessionStorage.getItem("accessToken")
+  const api = axios.create({
+    baseURL: 'http://127.0.0.1:5000',  // Your Flask backend URL
+    withCredentials: true,  // Include cookies in requests
+  })
   
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -13,21 +18,11 @@ function LoginPage() {
       email,
       password,
     };
-    const url = "http://127.0.0.1:5000/login";
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-    const response = await fetch(url, options);
+    const response = await api.post('/login', data)
     if (response.status !== 201 && response.status !== 200) {
-      const errorData = await response.json();
-      alert(errorData.message)
+      alert(response.data.message)
     } else {
-      const responseData = await response.json();
-      sessionStorage.setItem("accessToken", responseData.message)
+      sessionStorage.setItem("accessToken", response.data.message)
       window.location.href="http://localhost:3000";
     }
   };

@@ -1,11 +1,16 @@
 import { useState } from "react";
 import Navbar from "./Navbar"
+import axios from 'axios';
 
 const SignupForm = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
+  const api = axios.create({
+    baseURL: 'http://127.0.0.1:5000',  // Your Flask backend URL
+    withCredentials: true,  // Include cookies in requests
+  })
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -16,18 +21,10 @@ const SignupForm = () => {
       password1,
       password2,
     };
-    const url = "http://127.0.0.1:5000/signup";
-    const options = {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-    const response = await fetch(url, options);
+
+    const response = await api.post('/signup', data);
     if (response.status !== 201 && response.status !== 200) {
-      const errorData = await response.json();
-      alert(errorData.message);
+      alert(response.data.message);
     } else {
       window.location.href="http://localhost:3000/login";
     }
