@@ -22,12 +22,13 @@ const SignupForm = () => {
       password2,
     };
 
-    const response = await api.post('/signup', data);
-    if (response.status !== 201 && response.status !== 200) {
-      alert(response.data.message);
-    } else {
+    const response = await api.post('/signup', data)
+    .then(response =>{
       window.location.href="http://localhost:3000/login";
-    }
+    })
+    .catch(error => {
+      alert(error.response.data.message);
+    })
   };
   
   return (

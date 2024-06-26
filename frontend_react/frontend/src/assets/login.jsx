@@ -19,12 +19,13 @@ function LoginPage() {
       password,
     };
     const response = await api.post('/login', data)
-    if (response.status !== 201 && response.status !== 200) {
-      alert(response.data.message)
-    } else {
-      sessionStorage.setItem("accessToken", response.data.message)
+      .then(response =>{
+        sessionStorage.setItem("accessToken", response.data.message)
       window.location.href="http://localhost:3000";
-    }
+      })
+      .catch(error => {
+        console.error("Error:", error.response.data.message)
+      })
   };
   
   return (

@@ -24,14 +24,15 @@ function Navbar({}) {
     setIsLoggedIn(false);
   };
 
-  const onLogout = async (e) => {
-    e.preventDefault();
-    const response = await api.post('/logout');
-    if (response.status !== 201 && response.status !== 200) {
-      //alert(data.message);
-    } else {
-      window.location.href="http://localhost:3000/login";
-    }
+  const onLogout = async () => {
+    //e.preventDefault();
+    const response = await api.post('/logout')
+    .then(response =>{
+        window.location.href="http://localhost:3000/login";
+      })
+      .catch(error => {
+        console.error("Error:", error.response.data.message)
+      })
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);

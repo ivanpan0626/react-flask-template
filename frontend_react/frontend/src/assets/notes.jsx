@@ -20,14 +20,15 @@ function NotesPage() {
   }, []);
 
   const getUser = async () => {
-    const response = await api.get('/get-user');
-    if (response.status != 200 && response.status != 201) {
-      console.error("Error:", response.data.message);
-    } else {;
-      console.log("Success:", response.data.user);
+    const response = await api.get('/get-user')
+    .then(response =>{
       setUser(response.data.user)
-    }
-};
+    })
+    .catch(error => {
+      console.error("Error:", error.response.data.message)
+    })
+  };
+  
   return (
     <>
       <Navbar></Navbar>

@@ -21,20 +21,13 @@ function Home() {
   }, []);
 
   const getUser = async () => {
-    const options = {
-      method: "GET",
-      credentials: 'include'
-      //headers: {
-        //'X-CSRF-TOKEN': getCookie('csrf_access_token'),
-        //Authorization: "Bearer " + sessionStorage.getItem("accessToken"),
-      //},
-    };
     const response = await api.get('/get-user')
-    if (response.status != 200 && response.status != 201) {
-      alert("Error:", response.data.message);
-    } else {
+    .then(response =>{
       setUser(response.data.user)
-    }
+    })
+    .catch(error => {
+      console.error("Error:", error.response.data.message)
+    })
   };
 
   return (
